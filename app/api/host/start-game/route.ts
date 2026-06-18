@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { gameRepo } from '@/lib/db/repositories'
-import { logger } from '@/lib/logger/system-log'
 import { randomBytes } from 'crypto'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // Dynamically import at runtime to avoid build-time database requirement
+    const { gameRepo } = await import('@/lib/db/repositories')
+    const { logger } = await import('@/lib/logger/system-log')
+
     const body = await request.json()
     const { hostName, venueName, packageSnapshot } = body
 
@@ -36,7 +40,10 @@ export async function POST(request: NextRequest) {
       qrCode: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/play/${sessionToken}`,
     })
   } catch (error) {
-    logger.logError('game:start:error', error as Error)
+    try {
+      const { logger } = await import('@/lib/logger/system-log')
+      logger.logError('game:start:error', error as Error)
+    } catch {}
     return NextResponse.json({ error: 'Failed to start game' }, { status: 500 })
   }
 }

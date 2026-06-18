@@ -14,10 +14,19 @@ export interface RoundState {
   publishPending: Set<string> // team IDs with late-sync awaiting approval
 }
 
+export interface Team {
+  id: string
+  name: string
+  status: 'active' | 'soft_removed'
+  answers: Record<number, Record<number, any>>
+  scores: Record<number, Record<number, number>>
+}
+
 export interface GameStateSnapshot {
   currentRoundIndex: number
   registrationOpen: boolean
   rounds: Map<number, RoundState>
+  teams: Team[]
 }
 
 /**
@@ -38,6 +47,7 @@ export function createGameState(totalRounds: number): GameStateSnapshot {
     currentRoundIndex: 0,
     registrationOpen: true,
     rounds,
+    teams: [],
   }
 }
 

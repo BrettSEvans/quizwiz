@@ -30,11 +30,14 @@ export function getGameStatus(gameState: GameStateWithPause): GameStatus {
     return 'paused'
   }
 
-  if (gameState.roundStatus === 'locked') {
+  const currentRound = (gameState.rounds as any)?.get?.(gameState.currentRoundIndex)
+  const roundStatus = currentRound?.status
+
+  if (roundStatus === 'locked') {
     return 'locked'
   }
 
-  if (gameState.roundStatus === 'published' && gameState.currentRoundIndex > 0) {
+  if (roundStatus === 'published' && gameState.currentRoundIndex > 0) {
     return 'completed'
   }
 
@@ -46,7 +49,10 @@ export function canTeamSubmitDuringPause(gameState: GameStateWithPause): boolean
     return false
   }
 
-  if (gameState.roundStatus === 'locked') {
+  const currentRound = (gameState.rounds as any)?.get?.(gameState.currentRoundIndex)
+  const roundStatus = currentRound?.status
+
+  if (roundStatus === 'locked') {
     return false
   }
 
@@ -54,10 +60,19 @@ export function canTeamSubmitDuringPause(gameState: GameStateWithPause): boolean
 }
 
 export function skipRound(gameState: GameStateWithPause): GameStateWithPause {
+  const rounds = new Map((gameState.rounds as any)) as any
+  const currentRound = rounds.get(gameState.currentRoundIndex)
+  if (currentRound) {
+    rounds.set(gameState.currentRoundIndex, {
+      ...currentRound,
+      status: 'published',
+    })
+  }
+
   return {
     ...gameState,
     currentRoundIndex: gameState.currentRoundIndex + 1,
-    roundStatus: 'published',
+    rounds: rounds as any,
     isPaused: false, // Skip implicitly resumes the game
   }
 }

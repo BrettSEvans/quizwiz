@@ -3,7 +3,7 @@
  * Supports auto-cycling through pages and truncated "and X more" display.
  */
 
-import type { TeamScore } from './scoring'
+import type { TeamScore } from './models'
 
 export interface PaginatedResult {
   teams: Array<TeamScore & { rank: number | string }>

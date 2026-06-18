@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { gameRepo, teamRepo } from '@/lib/db/repositories'
-import { logger } from '@/lib/logger/system-log'
 import { randomBytes } from 'crypto'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // Dynamically import at runtime to avoid build-time database requirement
+    const { gameRepo, teamRepo } = await import('@/lib/db/repositories')
+    const { logger } = await import('@/lib/logger/system-log')
+
     const body = await request.json()
     const { sessionToken, teamName } = body
 
@@ -36,7 +40,10 @@ export async function POST(request: NextRequest) {
       gameId: game.id,
     })
   } catch (error) {
-    logger.logError('team:join:error', error as Error)
+    try {
+      const { logger } = await import('@/lib/logger/system-log')
+      logger.logError('team:join:error', error as Error)
+    } catch {}
     return NextResponse.json({ error: 'Failed to join game' }, { status: 500 })
   }
 }

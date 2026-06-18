@@ -3,7 +3,7 @@
  * Formats ranking data for display with detailed breakdowns.
  */
 
-import type { GameRanking, Question } from './scoring'
+import type { GameRanking, Question } from './models'
 
 export interface TiebreakerView {
   isTiebreaker: boolean
@@ -79,12 +79,24 @@ export function formatScoreboard(
   ranking: GameRanking,
   tiebreaker: Question
 ): FormattedBoard {
-  const formattedTeams = ranking.teams.map((team) => ({
-    rank: team.rank,
-    teamName: team.teamName,
-    totalScore: team.totalPoints,
-    roundTotals: team.scores,
-  }))
+  const formattedTeams = ranking.teams.map((team) => {
+    const roundTotals: Record<number, number> = {}
+    for (const [roundIndex, questionScores] of Object.entries(team.scores)) {
+      const roundNum = parseInt(roundIndex)
+      const total = Object.values(questionScores as Record<number, number>).reduce(
+        (sum, points) => sum + (points || 0),
+        0
+      )
+      roundTotals[roundNum] = total
+    }
+
+    return {
+      rank: team.rank,
+      teamName: team.teamName,
+      totalScore: team.totalPoints,
+      roundTotals,
+    }
+  })
 
   return {
     teams: formattedTeams,

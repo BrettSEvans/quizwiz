@@ -4,7 +4,8 @@
  */
 
 import type { GameStateSnapshot } from './game-state'
-import { rankTeams, type TeamScore } from './scoring'
+import { rankTeams } from './scoring'
+import type { TeamScore } from './models'
 
 export interface TeamWithStatus {
   id: string

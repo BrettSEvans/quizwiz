@@ -25,16 +25,18 @@ export function voidQuestion(
 ): HostOverrideResult {
   const key = `${roundIndex}:${questionIndex}`
 
-  const teams = gameState.teams.map((team) => ({
-    ...team,
-    scores: {
-      ...team.scores,
-      [roundIndex]: {
-        ...team.scores[roundIndex],
-        [questionIndex]: undefined,
+  const teams = gameState.teams.map((team) => {
+    const roundScores = team.scores[roundIndex] ? { ...team.scores[roundIndex] } : {}
+    delete roundScores[questionIndex]
+
+    return {
+      ...team,
+      scores: {
+        ...team.scores,
+        [roundIndex]: roundScores,
       },
-    },
-  }))
+    }
+  })
 
   return {
     gameState: { ...gameState, teams },

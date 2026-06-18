@@ -19,7 +19,7 @@ export async function create(quizmasterId: string, name: string) {
       quizmasterId,
       name,
       status: 'draft',
-      data: emptyPackage,
+      data: emptyPackage as any,
     },
   })
 }
@@ -58,7 +58,7 @@ export async function update(packageId: string, packageData: DraftPackage) {
     where: { id: packageId },
     data: {
       name: packageData.name,
-      data: packageData,
+      data: packageData as any,
     },
   })
 }
@@ -74,14 +74,14 @@ export async function publish(packageId: string) {
   }
 
   const nextVersionNumber = (pkg.versions?.length ?? 0) + 1
-  const packageData = pkg.data as DraftPackage
+  const packageData = pkg.data as unknown as DraftPackage
 
   // Create package version snapshot
   await prisma.packageVersion.create({
     data: {
       packageId,
       versionNumber: nextVersionNumber,
-      snapshot: packageData, // This would be the FrozenPackage in real implementation
+      snapshot: packageData as any, // This would be the FrozenPackage in real implementation
       publishedAt: new Date(),
     },
   })

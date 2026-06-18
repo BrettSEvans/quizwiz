@@ -38,7 +38,7 @@ export function registerPackageSocketHandlers(io: Server) {
             return
           }
 
-          const current = pkg.data as packageAuthoring.DraftPackage
+          const current = pkg.data as unknown as packageAuthoring.DraftPackage
           const updated = packageAuthoring.addRound(
             current,
             data.roundIndex,
@@ -79,7 +79,7 @@ export function registerPackageSocketHandlers(io: Server) {
             return
           }
 
-          const current = pkg.data as packageAuthoring.DraftPackage
+          const current = pkg.data as unknown as packageAuthoring.DraftPackage
           const updated = packageAuthoring.addQuestion(
             current,
             data.roundIndex,
@@ -122,7 +122,7 @@ export function registerPackageSocketHandlers(io: Server) {
             return
           }
 
-          const current = pkg.data as packageAuthoring.DraftPackage
+          const current = pkg.data as unknown as packageAuthoring.DraftPackage
           const updated = packageAuthoring.deleteQuestion(current, data.roundIndex, data.questionIndex)
 
           await packageRepo.update(data.packageId, updated)
@@ -153,7 +153,7 @@ export function registerPackageSocketHandlers(io: Server) {
           return
         }
 
-        const current = pkg.data as packageAuthoring.DraftPackage
+        const current = pkg.data as unknown as packageAuthoring.DraftPackage
         const updated = packageAuthoring.deleteRound(current, data.roundIndex)
 
         await packageRepo.update(data.packageId, updated)
@@ -180,7 +180,7 @@ export function registerPackageSocketHandlers(io: Server) {
             return
           }
 
-          const current = pkg.data as packageAuthoring.DraftPackage
+          const current = pkg.data as unknown as packageAuthoring.DraftPackage
           const updated = packageAuthoring.setTiebreaker(current, data.question)
 
           await packageRepo.update(data.packageId, updated)
@@ -209,7 +209,7 @@ export function registerPackageSocketHandlers(io: Server) {
           return
         }
 
-        const current = pkg.data as packageAuthoring.DraftPackage
+        const current = pkg.data as unknown as packageAuthoring.DraftPackage
         const result = packageAuthoring.validatePackage(current)
 
         socket.emit('package:validation', {
@@ -236,7 +236,7 @@ export function registerPackageSocketHandlers(io: Server) {
           return
         }
 
-        const current = pkg.data as packageAuthoring.DraftPackage
+        const current = pkg.data as unknown as packageAuthoring.DraftPackage
         const validation = packageAuthoring.validatePackage(current)
 
         if (!validation.valid) {
