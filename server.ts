@@ -3,6 +3,7 @@ import { parse } from 'url'
 import next from 'next'
 import { Server } from 'socket.io'
 import { logger } from './src/lib/logger/system-log'
+import { registerSocketHandlers } from './src/lib/realtime/socket-handlers'
 import path from 'path'
 import fs from 'fs'
 
@@ -33,10 +34,8 @@ app.prepare().then(() => {
     },
   })
 
-  // Socket event handlers will be added in Phase 1
-  io.on('connection', (socket) => {
-    logger.logEvent('socket:connected', { socketId: socket.id })
-  })
+  // Register Socket.IO event handlers
+  registerSocketHandlers(io)
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {

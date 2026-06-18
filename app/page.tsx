@@ -1,65 +1,94 @@
-import Image from "next/image";
+'use client'
+
+import { Logo, Button } from '@/components/primitives'
+import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-[var(--bg)] flex flex-col">
+      <div className="max-w-7xl mx-auto w-full py-16 px-4 flex-1 flex flex-col">
+        {/* Header */}
+        <div className="flex items-center gap-6 mb-16">
+          <Logo size="lg" />
+          <div>
+            <h1 className="text-6xl sm:text-7xl font-black uppercase tracking-tighter text-[var(--red)]">
+              QuizWiz
+            </h1>
+            <p className="text-2xl font-bold uppercase tracking-wider mt-2">
+              Eat. Drink. Think. WIN!
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Hero */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 mb-12">
+          {/* Left: Description */}
+          <div>
+            <h2 className="text-5xl font-black uppercase mb-6 tracking-tighter">
+              Live Trivia<br />
+              Scoring for Bars
+            </h2>
+            <p className="text-lg leading-relaxed mb-8 font-medium">
+              QuizWiz is the companion platform for live bar trivia. Hosts manage the game, teams
+              submit answers on mobile, and the scoreboard displays live rankings.
+            </p>
+            <p className="text-sm uppercase tracking-wider font-bold text-[var(--muted)] mb-8">
+              Brought to you by Head Games Trivia
+            </p>
+          </div>
+
+          {/* Right: Action Cards */}
+          <div className="space-y-4">
+            <Link href="/host" className="block">
+              <div className="bg-[var(--red)] border-4 border-black shadow-[8px_8px_0px_0px_black] p-6 hover:-translate-y-1 transition-all cursor-pointer h-full">
+                <h3 className="text-2xl font-black uppercase text-white mb-2 tracking-tight">
+                  Host Control
+                </h3>
+                <p className="text-white font-bold">Run your game</p>
+              </div>
+            </Link>
+            <Link href="/quizmaster" className="block">
+              <div className="bg-[var(--blue)] border-4 border-black shadow-[8px_8px_0px_0px_black] p-6 hover:-translate-y-1 transition-all cursor-pointer h-full">
+                <h3 className="text-2xl font-black uppercase text-white mb-2 tracking-tight">
+                  Quizmaster
+                </h3>
+                <p className="text-white font-bold">Create packages</p>
+              </div>
+            </Link>
+          </div>
         </div>
-      </main>
+
+        {/* Features */}
+        <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_black] p-8">
+          <h3 className="text-3xl font-black uppercase mb-6">Features</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: 'Real-Time',
+                desc: 'Live answer submissions and instant score updates',
+              },
+              {
+                title: 'Mobile-First',
+                desc: 'Teams join via QR code on mobile browsers',
+              },
+              {
+                title: 'Flexible',
+                desc: 'Create custom rounds and scoring rules',
+              },
+            ].map((feature) => (
+              <div key={feature.title} className="border-2 border-black p-4">
+                <h4 className="font-black uppercase text-lg mb-2">{feature.title}</h4>
+                <p className="text-sm">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t-4 border-black p-4 text-center text-sm uppercase tracking-wider font-bold">
+        QuizWiz v1.0 — Powered by Head Games Trivia
+      </div>
     </div>
-  );
+  )
 }
