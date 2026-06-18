@@ -3,10 +3,8 @@
  * Handle all Prisma operations and data persistence.
  */
 
-import { PrismaClient } from '@prisma/client'
+import { prisma } from './prisma'
 import { GameStateSnapshot, RoundState } from '../domain/game-state'
-
-const prisma = new PrismaClient()
 
 /**
  * Game repository

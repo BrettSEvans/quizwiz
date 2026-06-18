@@ -7,7 +7,7 @@ const TRIM_AMOUNT = 1000
 
 // Get log directory dynamically (for test isolation)
 function getLogDir(): string {
-  return process.env.LOG_DIR || path.join(process.cwd(), 'logs')
+  return process.env.LOG_DIR || path.join(process.cwd(/*turbopackIgnore: true*/), 'logs')
 }
 
 function getLogFile(): string {
