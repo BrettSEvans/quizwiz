@@ -186,6 +186,236 @@ export const scoreRepo = {
 }
 
 /**
+ * Quizmaster repository
+ */
+export const quizmasterRepo = {
+  async create(input: { email: string; passwordHash: string; name: string; invitedBy?: string }) {
+    return prisma.quizmaster.create({
+      data: {
+        email: input.email,
+        passwordHash: input.passwordHash,
+        name: input.name,
+        invitedBy: input.invitedBy || null,
+      },
+    })
+  },
+
+  async findByEmail(email: string) {
+    return prisma.quizmaster.findUnique({
+      where: { email },
+      include: { hosts: true, archives: true },
+    })
+  },
+
+  async findById(id: string) {
+    return prisma.quizmaster.findUnique({
+      where: { id },
+      include: { hosts: true, archives: true },
+    })
+  },
+
+  async softDelete(id: string) {
+    return prisma.quizmaster.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    })
+  },
+
+  async restore(id: string) {
+    return prisma.quizmaster.update({
+      where: { id },
+      data: { deletedAt: null },
+    })
+  },
+}
+
+/**
+ * QuizmasterInvite repository
+ */
+export const inviteRepo = {
+  async create(input: {
+    quizmasterId: string
+    inviteCode: string
+    inviteEmail?: string
+    inviteType: 'email' | 'manual_code'
+    expiresAt: Date
+  }) {
+    return prisma.quizmasterInvite.create({
+      data: {
+        quizmasterId: input.quizmasterId,
+        inviteCode: input.inviteCode,
+        inviteEmail: input.inviteEmail || null,
+        inviteType: input.inviteType,
+        expiresAt: input.expiresAt,
+      },
+    })
+  },
+
+  async findByCode(code: string) {
+    return prisma.quizmasterInvite.findUnique({
+      where: { inviteCode: code },
+    })
+  },
+
+  async findPendingByEmail(email: string) {
+    return prisma.quizmasterInvite.findMany({
+      where: {
+        inviteEmail: email,
+        acceptedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    })
+  },
+
+  async markAccepted(code: string, acceptedBy: string) {
+    return prisma.quizmasterInvite.update({
+      where: { inviteCode: code },
+      data: {
+        acceptedAt: new Date(),
+        acceptedBy,
+      },
+    })
+  },
+}
+
+/**
+ * Host repository
+ */
+export const hostRepo = {
+  async create(input: {
+    quizmasterId: string
+    email: string
+    name: string
+    passwordHash: string
+    inviteCode?: string
+  }) {
+    return prisma.host.create({
+      data: {
+        quizmasterId: input.quizmasterId,
+        email: input.email,
+        name: input.name,
+        passwordHash: input.passwordHash,
+        inviteCode: input.inviteCode || null,
+      },
+    })
+  },
+
+  async findById(id: string) {
+    return prisma.host.findUnique({
+      where: { id },
+    })
+  },
+
+  async findByEmail(quizmasterId: string, email: string) {
+    return prisma.host.findUnique({
+      where: { quizmasterId_email: { quizmasterId, email } },
+    })
+  },
+
+  async findByQuizmaster(quizmasterId: string, statusFilter?: string) {
+    const where: any = { quizmasterId }
+    if (statusFilter) {
+      where.status = statusFilter
+    }
+    return prisma.host.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
+  },
+
+  async findActiveByQuizmaster(quizmasterId: string) {
+    return prisma.host.findMany({
+      where: {
+        quizmasterId,
+        status: 'active',
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  },
+
+  async updateNotes(id: string, notes: string) {
+    return prisma.host.update({
+      where: { id },
+      data: { notes },
+    })
+  },
+
+  async updateContactInfo(id: string, contactInfo: any) {
+    return prisma.host.update({
+      where: { id },
+      data: { contactInfo },
+    })
+  },
+
+  async disable(id: string) {
+    return prisma.host.update({
+      where: { id },
+      data: { status: 'disabled', disabledAt: new Date() },
+    })
+  },
+
+  async enable(id: string) {
+    return prisma.host.update({
+      where: { id },
+      data: { status: 'active', enabledAt: new Date(), disabledAt: null },
+    })
+  },
+
+  async softDelete(id: string) {
+    return prisma.host.update({
+      where: { id },
+      data: { status: 'soft_removed', deletedAt: new Date() },
+    })
+  },
+
+  async restore(id: string) {
+    return prisma.host.update({
+      where: { id },
+      data: { status: 'active', deletedAt: null },
+    })
+  },
+}
+
+/**
+ * GameArchive repository
+ */
+export const archiveRepo = {
+  async create(input: {
+    quizmasterId: string
+    venueName: string
+    hostName: string
+    gameDate: Date
+    snapshot: object
+  }) {
+    return prisma.gameArchive.create({
+      data: input,
+    })
+  },
+
+  async findByQuizmaster(quizmasterId: string, limit = 20, offset = 0) {
+    return prisma.gameArchive.findMany({
+      where: { quizmasterId, deletedAt: null },
+      orderBy: { gameDate: 'desc' },
+      take: limit,
+      skip: offset,
+    })
+  },
+
+  async findById(id: string) {
+    return prisma.gameArchive.findUnique({
+      where: { id },
+    })
+  },
+
+  async softDelete(id: string) {
+    return prisma.gameArchive.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    })
+  },
+}
+
+/**
  * Prisma client export
  */
 export { prisma }

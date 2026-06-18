@@ -9,11 +9,93 @@ datasource db {
 model Quizmaster {
   id                String   @id @default(cuid())
   email             String   @unique
+  passwordHash      String
   name              String
+  invitedBy         String?  // FK to another Quizmaster (invite-only signup)
+
   packages          Package[]
+  hosts             Host[]   @relation("QuizmasterHosts") // Hosts managed by this Quizmaster
+  invites           QuizmasterInvite[]
+  sentInvites       QuizmasterInvite[] @relation("InvitedBy")
+  archives          GameArchive[]
+  retentionPolicy   RetentionPolicy?
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  deletedAt         DateTime? // Soft delete
+}
+
+model QuizmasterInvite {
+  id                String   @id @default(cuid())
+  quizmasterId      String
+  quizmaster        Quizmaster @relation(fields: [quizmasterId], references: [id], onDelete: Cascade)
+  invitedBy         String?
+  sentBy            Quizmaster? @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: SetNull)
+
+  inviteCode        String   @unique
+  inviteEmail       String?  // For email-based invites
+  inviteType        String   @default("email") // email, manual_code
+
+  expiresAt         DateTime
+  acceptedAt        DateTime?
+  acceptedBy        String?  // FK to Host once accepted
+
+  createdAt         DateTime @default(now())
+}
+
+model Host {
+  id                String   @id @default(cuid())
+  quizmasterId      String
+  quizmaster        Quizmaster @relation("QuizmasterHosts", fields: [quizmasterId], references: [id], onDelete: Cascade)
+
+  email             String
+  name              String
+  passwordHash      String
+  inviteCode        String? // Last invite code used
+
+  status            String   @default("active") // active, disabled, soft_removed
+  notes             String   @default("") // Append-only audit trail
+  contactInfo       Json? // { phone?, address?, notes? }
+
+  lastGameDate      DateTime?
+  disabledAt        DateTime?
+  enabledAt         DateTime?
+  deletedAt         DateTime? // Soft delete
+
+  games             Game[]   // Games hosted by this Host
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([quizmasterId, email])
+}
+
+model RetentionPolicy {
+  id                String   @id @default(cuid())
+  quizmasterId      String   @unique
+  quizmaster        Quizmaster @relation(fields: [quizmasterId], references: [id], onDelete: Cascade)
+
+  daysToRetain      Int      @default(365)
+  autoDeleteArchivesOlderThan DateTime?
+
+  updatedAt         DateTime @updatedAt
+}
+
+model GameArchive {
+  id                String   @id @default(cuid())
+  gameId            String?  // May not have original game if deleted
+  quizmasterId      String
+  quizmaster        Quizmaster @relation(fields: [quizmasterId], references: [id], onDelete: Cascade)
+
+  venueName         String
+  hostName          String
+  gameDate          DateTime
+
+  snapshot          Json     // { scores, answers, questions, teams, duration, ... }
+
+  archivedAt        DateTime @default(now())
+  deletedAt         DateTime? // Soft delete
+  createdAt         DateTime @default(now())
 }
 
 model Package {
@@ -46,8 +128,10 @@ model PackageVersion {
 
 model Game {
   id                String   @id @default(cuid())
-  hostId            String
-  hostName          String
+  hostId            String?
+  host              Host?    @relation(fields: [hostId], references: [id], onDelete: SetNull)
+
+  hostName          String   // Denormalized for archival
   venueName         String
   sessionToken      String   @unique
   boardToken        String   @unique
@@ -64,6 +148,8 @@ model Game {
   teams             Team[]
   rounds            Round[]
   scores            Score[]
+
+  archivedAt        DateTime? // When game was moved to archive
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
