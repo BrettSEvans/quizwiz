@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node --loader tsx server.ts",
+    "dev": "node --import tsx server.ts",
     "dev:daemon": "npm run dev > logs.txt 2>&1 &",
     "build": "next build",
-    "start": "node --loader tsx server.ts",
+    "start": "node --import tsx server.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "setup": "npm install && npx prisma migrate dev --name init && npx prisma generate",
