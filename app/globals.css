@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Bauhaus primary colors */
+  --bg: #f0f0f0;
+  --fg: #121212;
+  --red: #d02020;
+  --blue: #1040c0;
+  --yellow: #f0c020;
+  --muted: #e0e0e0;
+  --border: #121212;
+
+  /* Semantic roles (tied to design system) */
+  --locked: var(--red);
+  --active: var(--blue);
+  --attention: var(--yellow);
+  --success: var(--fg);
+
+  /* Font stack */
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-primary: var(--blue);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-sans);
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Bauhaus border defaults */
+* {
+  border-color: var(--border);
+}
+
+/* Remove default list styles */
+ul, ol {
+  list-style: none;
+}
+
+/* Ensure inputs inherit font */
+input, button, textarea, select {
+  font-family: inherit;
+}

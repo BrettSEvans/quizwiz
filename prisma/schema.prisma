@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id                String   @id @default(cuid())
+  hostId            String
+  hostName          String
+  venueName         String
+  sessionToken      String   @unique
+  boardToken        String   @unique
+  qrCode            String?
+  manualJoinCode    String   @unique
+
+  // Package snapshot frozen at game start
+  packageSnapshot   Json
+
+  // Game state
+  status            String   @default("registration") // registration, active, locked, completed
+  currentRoundIndex Int      @default(0)
+
+  teams             Team[]
+  rounds            Round[]
+  scores            Score[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Team {
+  id                String   @id @default(cuid())
+  gameId            String
+  game              Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  name              String
+  teamToken         String   @unique
+  status            String   @default("active") // active, soft_removed
+
+  answers           Answer[]
+  scores            Score[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([gameId, name])
+}
+
+model Round {
+  id                String   @id @default(cuid())
+  gameId            String
+  game              Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  index             Int
+  name              String
+  status            String   @default("active") // active, locked, published
+  roundType         String   @default("standard") // standard, optional, custom
+
+  questions         Question[]
+  answers           Answer[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([gameId, index])
+}
+
+model Question {
+  id                String   @id @default(cuid())
+  roundId           String
+  round             Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+
+  index             Int
+  text              String
+  type              String   @default("standard") // standard, musical, bonus, custom
+
+  // Musical question fields
+  musicalArtistLabel String?
+  musicalYearLabel   String?
+
+  answers           Answer[]
+  scores            Score[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([roundId, index])
+}
+
+model Answer {
+  id                String   @id @default(cuid())
+  teamId            String
+  team              Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  roundId           String
+  round             Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  questionId        String
+  question          Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // Answer content
+  text              String
+  musicalArtist     String?
+  musicalYear       String?
+
+  // Draft tracking
+  isDraft           Boolean  @default(false)
+  submittedAt       DateTime?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([teamId, roundId, questionId])
+}
+
+model Score {
+  id                String   @id @default(cuid())
+  gameId            String
+  game              Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  teamId            String
+  team              Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  questionId        String
+  question          Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  points            Int      @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([gameId, teamId, questionId])
+}
