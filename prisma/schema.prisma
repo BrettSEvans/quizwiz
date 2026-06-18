@@ -6,6 +6,44 @@ datasource db {
   provider = "postgresql"
 }
 
+model Quizmaster {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String
+  packages          Package[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Package {
+  id                String   @id @default(cuid())
+  quizmasterId      String
+  quizmaster        Quizmaster @relation(fields: [quizmasterId], references: [id], onDelete: Cascade)
+
+  name              String
+  status            String   @default("draft") // draft, published
+  data              Json     // Serialized DraftPackage
+  versions          PackageVersion[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model PackageVersion {
+  id                String   @id @default(cuid())
+  packageId         String
+  package           Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  versionNumber     Int
+  snapshot          Json     // Serialized FrozenPackage
+  publishedAt       DateTime
+
+  createdAt         DateTime @default(now())
+
+  @@unique([packageId, versionNumber])
+}
+
 model Game {
   id                String   @id @default(cuid())
   hostId            String
